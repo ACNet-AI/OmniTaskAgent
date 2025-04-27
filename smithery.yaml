@@ -1,0 +1,46 @@
+# Smithery.ai configuration for OmniTask Agent MCP Server
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      OPENAI_API_KEY:
+        type: string
+        description: "OpenAI API key (required if ANTHROPIC_API_KEY is not provided)"
+      ANTHROPIC_API_KEY:
+        type: string
+        description: "Anthropic API key (required if OPENAI_API_KEY is not provided)"
+      OPENAI_API_BASE:
+        type: string
+        description: "OpenAI API base URL (optional, defaults to official OpenAI API)"
+      LLM_MODEL:
+        type: string
+        description: "LLM model to use"
+        default: "gpt-4o"
+      TEMPERATURE:
+        type: string
+        description: "Creativity parameter for LLM"
+        default: "0.2"
+      MAX_TOKENS:
+        type: string
+        description: "Maximum tokens for LLM response"
+        default: "4000"
+      ENABLE_THOUGHT_CHAIN:
+        type: string
+        description: "Enable thought chain tracking"
+        default: "true"
+    required:
+      - "OPENAI_API_KEY"
+  commandFunction: |
+    (config) => {
+      const env = {
+        ...config,
+        PYTHONUNBUFFERED: "1",
+      };
+      
+      return {
+        command: "python",
+        args: ["run_mcp.py"],
+        env: env
+      };
+    } 

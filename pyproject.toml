@@ -45,6 +45,9 @@ dev = [
     "mypy>=1.0.0",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["omni_task_agent"]
+
 [tool.setuptools]
 packages = ["omni_task_agent"]
 
