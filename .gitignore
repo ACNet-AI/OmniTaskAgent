@@ -1,0 +1,56 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Sensitive information
+.env
+*.pem
+*.key
+ .cursor/
+
+# Editor and IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+logs/
+*.log
+temp/
+.cache/
+*.tmp
+
+# Package files
+dist/
+build/
+*.egg-info/
+
+# Project specific folders
+data/
+docs/
+tasks/
+
+# Node.js related
+node_modules/
+package-lock.json
+
+# Unused code
+omni_task_agent/utils/
+
+# Test data
+tests/test_data/

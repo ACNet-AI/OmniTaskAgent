@@ -1,0 +1,13 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "omni_task": "./omni_task_agent/agent.py:make_graph"
+  },
+  "env": ".env",
+  "dockerfile_lines": [
+    "RUN apt-get update && apt-get install -y curl",
+    "RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -",
+    "RUN apt-get install -y nodejs",
+    "RUN npm install -g mcp-shrimp-task-manager"
+  ]
+}
