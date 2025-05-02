@@ -28,7 +28,7 @@ startCommand:
       ENABLE_THOUGHT_CHAIN:
         type: string
         description: "Enable thought chain tracking"
-        default: "true"
+        default: "false"
     required:
       - "OPENAI_API_KEY"
   commandFunction: |

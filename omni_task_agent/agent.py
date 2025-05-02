@@ -24,13 +24,22 @@ model_name = os.environ.get("LLM_MODEL", "gpt-4o")
 openai_base_url = os.environ.get("OPENAI_API_BASE")
 
 # Define server configuration
-def get_server_config():
-    """Get server configuration"""
-    project_root = os.environ.get("PROJECT_ROOT", os.getcwd())
+def get_server_config(project_root=None):
+    """
+    Get server configuration
     
-    # Find shrimp-task-manager executable path
-    # 1. First try to find in project node_modules
-    node_modules_path = os.path.join(project_root, "node_modules", "mcp-shrimp-task-manager", "dist", "index.js")
+    Args:
+        project_root: User-provided project root directory
+    """
+    # if not project_root:
+    #     raise ValueError("Project root directory must be provided")
+    
+    # Server directory - OmniTask Agent's own directory, used to find dependencies
+    server_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    # Find shrimp-task-manager executable path in the server directory
+    # 1. First try to find in server node_modules
+    node_modules_path = os.path.join(server_root, "node_modules", "mcp-shrimp-task-manager", "dist", "index.js")
     
     # 2. If not found, try global npm path
     npx_path = "npx"
@@ -44,14 +53,22 @@ def get_server_config():
         command = npx_path
         args = ["-y", "mcp-shrimp-task-manager"]
     
-    # Prepare environment variables
+    # Data directory in the user's project directory - used to store task data
+    # Handle cases where project_root might be a dict or other non-string type
+    if not project_root or not isinstance(project_root, (str, bytes, os.PathLike)):
+        project_root = os.path.join(server_root, "tmp")
+        logger.info(f"No valid project root provided, using temporary directory: {project_root}")
+    
     data_dir = os.path.join(project_root, "data")
     os.makedirs(os.path.abspath(data_dir), exist_ok=True)
+    
+    logger.info(f"Using data directory: {data_dir} for user project: {project_root}")
     
     env = {
         "DATA_DIR": data_dir,
         "PATH": os.environ.get("PATH", ""),
-        "ENABLE_THOUGHT_CHAIN": "true"
+        "ENABLE_THOUGHT_CHAIN": "false",
+        "TEMPLATES_USE": "en"
     }
     
     return {
@@ -67,18 +84,38 @@ def get_server_config():
 
 # Create graph using asynccontextmanager
 @asynccontextmanager
-async def make_graph():
+async def make_graph(project_root=None):
     """
     Create and provide agent graph following langgraph-api standard
     
+    Args:
+        project_root: User-provided project root directory
+    
     Usage:
     ```python
-    async with make_graph() as agent:
+    async with make_graph(project_root) as agent:
         response = await agent.ainvoke({"messages": messages})
     ```
     """
-    logger.info("Creating MCP client...")
-    async with MultiServerMCPClient(get_server_config()) as client:
+    # if not project_root:
+    #     raise ValueError("Project root directory must be provided")
+    
+    # Log what we received to help debug
+    logger.info(f"Creating MCP client with project root: {project_root}")
+    
+    # Handle case where project_root is not a string (e.g., dict from LangGraph Studio)
+    if not isinstance(project_root, (str, bytes, os.PathLike)) and project_root is not None:
+        logger.info(f"Project root is not a string type: {type(project_root)}")
+        # Extract a string if possible or use None
+        if isinstance(project_root, dict) and "thread_id" in getattr(project_root, "configurable", {}):
+            # Use thread_id from configurable if available
+            project_root = f"/tmp/langgraph_studio/{project_root['configurable']['thread_id']}"
+            logger.info(f"Using thread ID as project root: {project_root}")
+        else:
+            project_root = None
+            logger.info("Setting project_root to None for get_server_config to handle")
+    
+    async with MultiServerMCPClient(get_server_config(project_root)) as client:
         logger.info("Getting tools list...")
         tools = client.get_tools()
         tool_count = len(tools) if tools else 0

@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 # Define input schema to match omni_task_agent requirements
 class InputSchema(BaseModel):
     prompt: str
-    projectRoot: str
+    projectRoot: str = None
     file: str = None
 
 name = "OmniTask Agent"
@@ -28,7 +28,7 @@ description = "A powerful multi-model task management system that can both integ
 # Note: This returns an async function, FastMCP supports registering async tool functions
 mcp_langgraph_agent = create_langgraph_async_adapter(
     agent_instance=make_graph,  # Use make_graph async context manager from omni_task_agent.agent
-    name="Task_Master_Agent",
+    name="OmniTask_Agent",
     description=description,
     input_schema=InputSchema,
 )

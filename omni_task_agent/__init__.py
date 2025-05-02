@@ -11,7 +11,6 @@ from pathlib import Path
 
 from omni_task_agent.config import setup_environment
 from omni_task_agent.agent import make_graph
-from omni_task_agent.cli import main
 
 __version__ = "0.1.0"
 __author__ = "OmniTaskAgent Team"
@@ -20,7 +19,6 @@ __author__ = "OmniTaskAgent Team"
 __all__ = [
     "make_graph",    # Async context manager for creating agent graph
     "setup_environment",  # Environment configuration tool
-    "main"           # CLI entry function
 ]
 
 # Ensure current directory is in path
@@ -34,4 +32,5 @@ if str(project_root) not in sys.path:
 
 if __name__ == "__main__":
     # Run command line interface
+    from omni_task_agent.cli import main
     main()

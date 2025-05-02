@@ -1,8 +1,12 @@
 """Custom adapter module for supporting async context manager LangGraph adapters"""
 
 import textwrap
+import logging
 from typing import Callable, Type, AsyncContextManager
 from pydantic import BaseModel
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 def create_langgraph_async_adapter(
     agent_instance: AsyncContextManager,
@@ -36,15 +40,21 @@ def create_langgraph_async_adapter(
     body_str = textwrap.dedent(f"""
     async def run_agent({params_str}):
         inputs = input_schema({', '.join(f'{name}={name}' for name in schema_fields)})
-        async with agent_instance() as agent:
+        logger.info(f"Received request with projectRoot: {{inputs.projectRoot}}")
+        logger.info(f"File parameter: {{inputs.file if hasattr(inputs, 'file') else None}}")
+        
+        async with agent_instance(inputs.projectRoot) as agent:
+            logger.info(f"Invoking agent with prompt: {{inputs.prompt[:50]}}...")
             result = await agent.ainvoke({{"messages": [{{"role": "user", "content": inputs.prompt}}]}})
+            logger.info("Agent invocation completed")
         return result
     """)
 
     # Create namespace
     namespace = {
         "input_schema": input_schema,
-        "agent_instance": agent_instance
+        "agent_instance": agent_instance,
+        "logger": logger
     }
 
     # Execute function definition

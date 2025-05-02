@@ -16,7 +16,7 @@ htmlcov/
 .env
 *.pem
 *.key
- .cursor/
+.cursor/
 
 # Editor and IDE files
 .idea/
@@ -32,6 +32,7 @@ Thumbs.db
 logs/
 *.log
 temp/
+tmp/
 .cache/
 *.tmp
 
